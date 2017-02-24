@@ -1,0 +1,97 @@
+# The tcp port used by the publisher:
+publish_port: 1337
+
+# The port used by the communication interface. The ret (return) port is the
+# interface used for the file server, authentication, job returns, etc.
+ret_port: 1338
+
+# Directory for custom modules. This directory can contain subdirectories for
+# each of Salt's module types such as "runners", "output", "wheel", "modules",
+# "states", "returners", etc.
+extension_modules: /srv/salt/file_server/_modules
+
+# Set the default timeout for the salt command and api. The default is 5
+# seconds.
+timeout: 60
+
+# The number of worker threads to start. These threads are used to manage
+# return calls made from minions to the master. If the master seems to be
+# running slowly, increase the number of threads. This setting can not be
+# set lower than 3.
+worker_threads: 5
+
+# Allow minions to push files to the master. This is disabled by default, for
+# security purposes.
+file_recv: True
+
+#####      File Server settings      #####
+##########################################
+# Salt runs a lightweight file server written in zeromq to deliver files to
+# minions. This file server is built into the master daemon and does not
+# require a dedicated port.
+
+# The file server works on environments passed to the master, each environment
+# can have multiple root directories, the subdirectories in the multiple file
+# roots cannot match, otherwise the downloaded files will not be able to be
+# reliably ensured. A base environment is required to house the top file.
+# Example:
+file_roots:
+  base:
+    - /srv/salt/production
+    - /srv/salt/file_server
+
+  production:
+    - /srv/salt/production
+    - /srv/salt/file_server
+
+  staging:
+    - /srv/salt/staging
+    - /srv/salt/file_server
+
+  development:
+    - /srv/salt/development
+    - /srv/salt/file_server
+
+# The hash_type is the hash to use when discovering the hash of a file on
+# the master server. The default is md5 but sha1, sha224, sha256, sha384
+# and sha512 are also supported.
+#
+# WARNING: While md5 is supported, do not use it due to the high chance
+# of possible collisions and thus security breach.
+#
+# Prior to changing this value, the master should be stopped and all Salt
+# caches should be cleared.
+hash_type: sha256
+
+#####         Pillar settings        #####
+##########################################
+# Salt Pillars allow for the building of global data that can be made selectively
+# available to different minions based on minion grain filtering. The Salt
+# Pillar is laid out in the same fashion as the file server, with environments,
+# a top file and sls files. However, pillar data does not need to be in the
+# highstate format, and is generally just key/value pairs.
+pillar_roots:
+  base:
+    - /srv/salt/pillar/base
+
+  development:
+    - /srv/salt/pillar/development
+
+  staging:
+    - /srv/salt/pillar/staging
+
+  production:
+    - /srv/salt/pillar/production
+
+ext_pillar:
+  - app_attributes: /srv/salt/ext_pillar/app_attributes.json
+
+# The ext_pillar_first option allows for external pillar sources to populate
+# before file system pillar. This allows for targeting file system pillar from
+# ext_pillar.
+ext_pillar_first: True
+#pillar_roots_override_ext_pillar: True
+
+# The level of messages to send to the log file.
+# One of 'garbage', 'trace', 'debug', info', 'warning', 'error', 'critical'.
+# If using 'log_granular_levels' this must be set to the highest desired level.
