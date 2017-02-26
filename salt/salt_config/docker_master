@@ -20,10 +20,6 @@ timeout: 60
 # set lower than 3.
 worker_threads: 5
 
-# Allow minions to push files to the master. This is disabled by default, for
-# security purposes.
-file_recv: True
-
 #####      File Server settings      #####
 ##########################################
 # Salt runs a lightweight file server written in zeromq to deliver files to
@@ -82,15 +78,6 @@ pillar_roots:
 
   production:
     - /srv/salt/pillar/production
-
-ext_pillar:
-  - app_attributes: /srv/salt/ext_pillar/app_attributes.json
-
-# The ext_pillar_first option allows for external pillar sources to populate
-# before file system pillar. This allows for targeting file system pillar from
-# ext_pillar.
-ext_pillar_first: True
-#pillar_roots_override_ext_pillar: True
 
 # The level of messages to send to the log file.
 # One of 'garbage', 'trace', 'debug', info', 'warning', 'error', 'critical'.
